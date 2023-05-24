@@ -1,30 +1,100 @@
-MERN Stack Developer
+# Backend Developer
 Pre-Interview Task
 
-Create a Post App with API,
+## Create a Post-Comment App API,
 
-Where,
-User can create a post and comment on it
-User can comment on a comment as well
-User can edit and delete the post
-User can edit and delete the comment
-
-
-
-Requirement:
-Use any UI and API library to create the app
+-Where,
+-User can create a post and comment on it
+-User can comment on a comment as well
+-User can edit and delete the post
+-User can edit and delete the comment
 
 
-//-------------------------------------------------------------------------------------------------------//
+### Models
+- User Model
+```yaml
+{ 
+  name: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true,
+        minLen: 8,
+        maxLen: 15,
+        trim: true
+    }
+
+}, { timestamps: true })
+}
+```
+- Post Model
+
+```yaml
+{ 
+   post : {type:String,required:true},
+
+    userId: {
+        type: ObjectId,
+        ref: "User"
+    },
+
+    isDeleted:{
+        type:Boolean,
+        default:false
+    }
+}, { timestamps: true }
+}
+```
 
 
-router.post("/user/login", loginUser)
-user can register and login with name, email & password
+- Comment Model
+- 
+```yaml
+{ 
+    postId: {
+        type: ObjectId,
+        ref: "Post"
+    },
 
+    userId:{
+        type:ObjectId,
+        ref:"User"
+    },
 
-Login User Responce 
+    comment: [{
+        // type:String,
+        text : {type:String},
+        isDeleted:{type:Boolean,default:false},
+        dateOfComment : {type:Date},
+        reply:[{
+            text: {type:String},
+            dateOfReply:{type:Date},
+          }],
+    }],
+      isDeleted:{
+        type:Boolean,
+        default:false
+      }
+},{timestamps:true})
+}
+```
+## User APIs 
+### POST /login
 
+-user can register and login with name, email & password
+- On a successful login attempt return a JWT token contatining the userId, exp, iat. The response should be a JSON object like [this](#successful-response-structure)
+- If the credentials are incorrect return a suitable error message with a valid HTTP status code. The response should be a JSON object like [this](#error-response-structure)
+
+```yaml
 {
+ {
     "status": true,
     "data": {
         "_id": "64297ee38dca74bda191fe7b",
@@ -35,27 +105,21 @@ Login User Responce
         "__v": 0
     }
 }
+}
+```
 
 
-//-------------------------------------------------------------------------------------------------------//
 
 
-router.post("/user/logout", logout)
+## Posts APIs 
+### POST /user/post/:userId
 
-responce will be look like this
+-with this api login user can create a post 
 
-(User has been logged out.)  
-
-
-//-------------------------------------------------------------------------------------------------------//
-
-router.post("/user/post/:userId", verifyToken , createPost)
-
-with this api login user can create a post 
-
-responce will be look like this
-
+```yaml
 {
+ {
+    
     "status": true,
     "data": {
         "post": "amazon mern",
@@ -65,25 +129,27 @@ responce will be look like this
         "createdAt": "2023-04-02T09:54:06.066Z",
         "updatedAt": "2023-04-02T09:54:06.066Z",
         "__v": 0
+   
     }
 }
+}
+```
 
 
+## Posts APIs 
+### POST /user/post/:userId
 
 
-//-------------------------------------------------------------------------------------------------------//
+PUT - "/user/:userId/post/:postId" Authorisation required
 
+-with this api login user can edit or update a post 
 
-
-
-router.put("/user/:userId/post/:postId", verifyTokenAndAuthorization, UpdatePost)
-
-with this api login user can edit or update a post 
-
-responce will be look like this
-
+-responce will be look like this
+```yaml
 {
-    "status": true,
+ {
+    
+"status": true,
     "message": "post updated",
     "data": {
         "_id": "642938463953efa5ac16665c",
@@ -93,42 +159,47 @@ responce will be look like this
         "createdAt": "2023-04-02T08:09:42.817Z",
         "updatedAt": "2023-04-02T10:14:47.565Z",
         "__v": 0
+   
     }
 }
-
-
-//-------------------------------------------------------------------------------------------------------//
-
-
-
-
-router.delete("/user/:userId/post/:postId", verifyTokenAndAuthorization, deletePost)
-
-with this api login user can delete a post 
-
-responce will be look like this
-
-{
-    "status": true,
-    "message": "post deleted"
 }
-NOTE : while deleting post, comment and reply will be removed
-
-
-
-//-------------------------------------------------------------------------------------------------------//
+```
 
 
 
 
-router.get("/user/post",getAllPost)
+DELETE  /user/:userId/post/:postId  Authorisation required
 
-with this api any user can see all post 
+-with this api login user can delete a post 
 
-responce will be look like this
+-responce will be look like this
 
+```yaml
 {
-    "status": true,
+ {
+    
+"status": true,
+    "message": "post deleted"
+   
+    }
+}
+}
+```
+###NOTE : while deleting post, comment and reply will be removed
+
+
+GET /user/post"  
+
+-with this api any user can see all post 
+
+-responce will be look like this
+
+
+```yaml
+{
+ {
+    
+"status": true,
     "data": [
         {
             "postId": "642981af4bce749b4d4889bc",
@@ -156,21 +227,17 @@ responce will be look like this
         }
     ]
 }
+}
+```
+
+GET /user/post/:postId"
+
+-with this api any user can see details of post, like comments and reply on comments
+
+-responce will be look like this
 
 
-
-
-//-------------------------------------------------------------------------------------------------------//
-
-
-
-
-router.get("/user/post/:postId",getPostById)
-
-with this api any user can see details of post, like comments and reply on comments
-
-responce will be look like this
-
+```yaml
 {
     "status": true,
     "data": {
@@ -192,22 +259,18 @@ responce will be look like this
         ]
     }
 }
+}
+```
 
 
 
+POST /user/:userId/post/:postId/comment 
 
-//-------------------------------------------------------------------------------------------------------//
+-with this api login user can see comment on post
 
+-responce will be look like this
 
-
-
-
-router.post("/user/:userId/post/:postId/comment",verifyToken, createComment)
-
-with this api login user can see comment on post
-
-responce will be look like this
-
+```yaml
 {
     "status": true,
     "data": {
@@ -224,26 +287,18 @@ responce will be look like this
         ]
     }
 }
+```
 
 
 
+PUT /user/:userId/comment/:commentId
 
+-with this api only login user can update or edit their own comment on post
 
+-responce will be look like this
 
-//-------------------------------------------------------------------------------------------------------//
-
-
-
-
-
-router.put("/user/:userId/comment/:commentId", verifyToken,verifyComment, updateComment)
-
-with this api login user can update or edit comment on post
-
-responce will be look like this
-
-{
-    "status": true,
+```yaml
+ "status": true,
     "message": "doc updated",
     "data": {
         "_id": "642922f9081e79f40fd564a1",
@@ -262,44 +317,33 @@ responce will be look like this
         "updatedAt": "2023-04-02T07:52:05.627Z"
     }
 }
+```
 
 
+DELETE /user/:userId/comment/:commentId 
 
+-with this api login user can delete their own comment
 
+-responce will be look like this
 
-//-------------------------------------------------------------------------------------------------------//
-
-
-
-
-
-
-router.delete("/user/:userId/comment/:commentId", verifyToken,verifyComment, deleteComment)
-
-with this api login user can delete comment
-
-responce will be look like this
-
-{
+```yaml
+   {
     "status": true,
     "message": "comment deleted successfully"
 }
 
+```
+
+POST /user/reply/:commentId"
+
+-with this api login user can reply on any comment of post
+
+-responce will be look like this
 
 
-
-//-------------------------------------------------------------------------------------------------------//
-
-
-
-
-router.post("/user/reply/:commentId",replyOnComment)
-
-with this api login user can reply on any comment of post
-
-responce will be look like this
-
-{
+```yaml
+   
+  {
     "status": true,
     "data": {
         "_id": "6429824c4bce749b4d4889c9",
@@ -326,12 +370,5 @@ responce will be look like this
 }
 
 
-
-
-
-//-------------------------------------------------------------------------------------------------------//
-
-
-
-
+```
 
