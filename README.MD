@@ -55,7 +55,6 @@ Pre-Interview Task
 
 
 - Comment Model
-- 
 ```yaml
 { 
     postId: {
